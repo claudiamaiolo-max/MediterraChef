@@ -1,67 +1,156 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediterraChef - Ricettario</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .font-serif { font-family: 'Playfair Display', serif; }
-    </style>
-</head>
-<body class="bg-stone-50 text-stone-800">
+import React, { useState } from 'react';
+import { 
+  ChefHat, BookOpen, Utensils, Brain, X, ChevronRight, Search 
+} from 'lucide-react';
 
-    <div id="app" class="min-h-screen">
-        <!-- Header -->
-        <header class="p-6 md:p-10 max-w-5xl mx-auto">
-            <h1 class="text-4xl font-serif font-bold text-emerald-900 mb-2">MediterraChef</h1>
-            <p class="text-stone-600">Archivio ricette anti-spreco e tradizione piemontese.</p>
-            <input type="text" id="searchInput" placeholder="Cerca ricetta..." 
-                   class="w-full mt-6 p-4 rounded-xl border border-stone-200 shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+const RECIPES = [
+  { 
+    id: 1, title: "Brodo Vegetale a Freddo", category: "Base", cuisine: "Anti-Spreco", time: "48h", difficulty: "Facile", 
+    ingredients: ["Bucce di carote", "Bucce di cipolla", "Apici di sedano", "Erbe aromatiche", "Zenzero", "Semi di finocchio", "Sale", "Pepe"],
+    method: "Riunire le verdure in un vaso di vetro. Aggiungere sale, aglio e spezie. Coprire con acqua fredda e riporre in frigo per 48 ore. Filtrare prima dell'uso."
+  },
+  { 
+    id: 2, title: "Bisquits di Mais", category: "Dolci", cuisine: "Paniere Torino", time: 40, difficulty: "Facile", 
+    ingredients: ["Farina 00", "Farina di Antichi Mais Piemontesi", "Burro di montagna", "Latte", "Lievito"],
+    method: "Amalgamare le farine con burro e latte. Stendere, tagliare a dischi di 6cm e infornare a 230°C per 15 minuti."
+  },
+  { 
+    id: 3, title: "Confettura di scorza e semi di zucca", category: "Conserve", cuisine: "Anti-Spreco", time: 45, difficulty: "Media", 
+    ingredients: ["Scarti di zucca", "Acqua", "Zucchero di canna", "Limone"],
+    method: "Cuocere gli scarti con acqua, zucchero e limone finché morbidi. Frullare e cuocere finché la confettura supera la 'prova piattino'."
+  },
+  { 
+    id: 4, title: "Cipolla Piatlina al Forno", category: "Contorni", cuisine: "Paniere Torino", time: 70, difficulty: "Facile", 
+    ingredients: ["Cipolla Piatlina di Andezeno", "Burro d'alpeggio", "Salvia", "Rosmarino", "Alloro", "Miele di flora alpina"],
+    method: "Avvolgere le cipolle al cartoccio con burro ed erbe. Cuocere a 180°C per un'ora. Servire con un filo di miele."
+  },
+  { 
+    id: 5, title: "Pesto di sedano e prezzemolo", category: "Condimenti", cuisine: "Anti-Spreco", time: 5, difficulty: "Facile", 
+    ingredients: ["Foglie sedano", "Gambi prezzemolo", "Semi di zucca", "Parmigiano Reggiano"],
+    method: "Frullare tutti gli ingredienti a intermittenza aggiungendo acqua se necessario per ammorbidire."
+  },
+  { 
+    id: 6, title: "Frittata di pane raffermo", category: "Piatti Unici", cuisine: "Anti-Spreco", time: 20, difficulty: "Facile", 
+    ingredients: ["Pane vecchio", "Uova", "Latte", "Formaggio grattugiato", "Prezzemolo"],
+    method: "Ammollare il pane nel latte. Strizzare, mescolare con uova, formaggio ed erbe. Cuocere in padella come una frittata classica."
+  },
+  { 
+    id: 7, title: "Gnocchi di patate con Toma di Lanzo", category: "Primi", cuisine: "Paniere Torino", time: 60, difficulty: "Media", 
+    ingredients: ["Patate", "Farina", "Toma di Lanzo DOP", "Burro", "Salvia"],
+    method: "Preparare gli gnocchi impastando patate bollite e farina. Condire con una fonduta leggera di Toma di Lanzo e burro fuso alla salvia."
+  },
+  { 
+    id: 8, title: "Torta di mele con bucce", category: "Dolci", cuisine: "Anti-Spreco", time: 50, difficulty: "Facile", 
+    ingredients: ["Mele (anche ammaccate)", "Bucce di mela", "Farina", "Zucchero", "Uova", "Lievito"],
+    method: "Centrifugare le bucce di mela per ottenere un succo colorato da aggiungere all'impasto. Incorporare le mele a cubetti e cuocere a 180°C."
+  },
+  { 
+    id: 9, title: "Zabaglione al Moscato d'Asti", category: "Dolci", cuisine: "Paniere Torino", time: 15, difficulty: "Media", 
+    ingredients: ["Tuorli d'uovo", "Zucchero", "Moscato d'Asti DOCG"],
+    method: "Montare a bagnomaria i tuorli con lo zucchero, aggiungendo il Moscato a filo. Servire caldo con i bisquits di mais."
+  },
+  { 
+    id: 10, title: "Tomini elettrici", category: "Antipasti", cuisine: "Paniere Torino", time: 24, difficulty: "Facile", 
+    ingredients: ["Tomini freschi", "Olio EVO", "Peperoncino", "Aglio", "Prezzemolo"],
+    method: "Marinare i tomini in una miscela di olio, aglio, peperoncino e prezzemolo per almeno 24 ore prima di servire."
+  }
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('recipes');
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredRecipes = RECIPES.filter(r => 
+    r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    r.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const colors = {
+    bg: 'bg-stone-50',
+    card: 'bg-white',
+    primary: 'text-emerald-800',
+    accent: 'bg-emerald-800'
+  };
+
+  const Navigation = () => (
+    <nav className="fixed bottom-0 w-full md:w-64 md:h-screen md:top-0 md:left-0 bg-white border-t md:border-r border-stone-200 z-50 flex md:flex-col justify-around md:justify-start p-4 space-x-2 md:space-x-0 md:space-y-4">
+      <div className="hidden md:flex items-center gap-2 mb-8 p-2">
+        <ChefHat className={colors.primary} size={32} />
+        <span className="font-serif text-xl font-bold text-emerald-900">MediterraChef</span>
+      </div>
+      {[
+        { id: 'recipes', icon: BookOpen, label: 'Ricettario' },
+        { id: 'ai', icon: Brain, label: 'AI Chef' },
+      ].map((item) => (
+        <button 
+          key={item.id}
+          onClick={() => setActiveTab(item.id)}
+          className={`flex flex-col md:flex-row items-center gap-2 p-3 rounded-xl transition-all ${activeTab === item.id ? 'bg-emerald-50 text-emerald-800' : 'text-stone-500 hover:bg-stone-100'}`}
+        >
+          <item.icon size={24} />
+          <span className="text-xs md:text-sm font-medium">{item.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+
+  return (
+    <div className={`${colors.bg} min-h-screen font-sans text-stone-800`}>
+      <Navigation />
+      
+      {selectedRecipe && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white max-w-lg w-full rounded-3xl p-8 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+            <button onClick={() => setSelectedRecipe(null)} className="absolute top-4 right-4 text-stone-400 hover:text-stone-600">
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">{selectedRecipe.title}</h2>
+            <div className="flex gap-2 mb-4">
+              <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg">{selectedRecipe.cuisine}</span>
+              <span className="px-2 py-1 bg-stone-100 text-stone-600 text-xs font-medium rounded-lg">{selectedRecipe.difficulty}</span>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-stone-800">Ingredienti</h3>
+                <p className="text-sm text-stone-600">{selectedRecipe.ingredients.join(", ")}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-stone-800">Procedimento</h3>
+                <p className="text-sm text-stone-600 leading-relaxed">{selectedRecipe.method}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <main className="pb-24 md:pb-8 md:pl-64 p-4 md:p-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-serif font-bold text-stone-900">Archivio Completo</h1>
+          <div className="relative mt-4 max-w-md">
+            <Search className="absolute left-3 top-3 text-stone-400" size={20} />
+            <input 
+              type="text" 
+              placeholder="Cerca ricetta o categoria..." 
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 outline-none"
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </header>
 
-        <!-- Griglia -->
-        <main id="recipeGrid" class="max-w-5xl mx-auto p-4 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-            <!-- Le ricette verranno caricate qui via JavaScript -->
-        </main>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredRecipes.map(recipe => (
+            <div key={recipe.id} className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm hover:shadow-lg transition-all cursor-pointer group" onClick={() => setSelectedRecipe(recipe)}>
+              <h3 className="font-bold text-lg mb-1 group-hover:text-emerald-800 transition-colors">{recipe.title}</h3>
+              <p className="text-xs text-emerald-800 font-bold mb-4 bg-emerald-50 px-2 py-1 inline-block rounded">{recipe.cuisine}</p>
+              <div className="flex items-center gap-4 text-xs text-stone-500">
+                <span>⏱ {recipe.time}</span>
+                <span>👨‍🍳 {recipe.difficulty}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
-
-    <script>
-        const RECIPES = [
-            { title: "Brodo Vegetale a Freddo", category: "Base", cuisine: "Anti-Spreco", time: "48h", difficulty: "Facile", ingredients: ["Bucce di carote", "Bucce di cipolla", "Apici di sedano"], method: "Riunire le verdure in un vaso, coprire con acqua fredda, riposo 48h in frigo." },
-            { title: "Bisquits di Mais", category: "Dolci", cuisine: "Paniere Torino", time: "40m", difficulty: "Facile", ingredients: ["Farina 00", "Farina di mais", "Burro", "Latte"], method: "Impastare, tagliare a dischi e infornare a 230°C per 15 min." },
-            { title: "Confettura di zucca", category: "Conserve", cuisine: "Anti-Spreco", time: "45m", difficulty: "Media", ingredients: ["Scarti di zucca", "Zucchero", "Limone"], method: "Cuocere con zucchero e limone, frullare e restringere." },
-            { title: "Cipolla Piatlina al Forno", category: "Contorni", cuisine: "Paniere Torino", time: "70m", difficulty: "Facile", ingredients: ["Cipolla Piatlina", "Burro", "Salvia", "Miele"], method: "Cartoccio con erbe e burro, 1 ora a 180°C. Servire con miele." },
-            { title: "Pesto di sedano", category: "Condimenti", cuisine: "Anti-Spreco", time: "5m", difficulty: "Facile", ingredients: ["Foglie sedano", "Gambi prezzemolo", "Semi di zucca"], method: "Frullare tutto con parmigiano e un filo d'acqua." },
-            { title: "Frittata di pane", category: "Piatti Unici", cuisine: "Anti-Spreco", time: "20m", difficulty: "Facile", ingredients: ["Pane raffermo", "Uova", "Latte"], method: "Ammollare il pane, unire uova e formaggio, cuocere in padella." }
-        ];
-
-        const grid = document.getElementById('recipeGrid');
-        const search = document.getElementById('searchInput');
-
-        function render(filter = '') {
-            grid.innerHTML = '';
-            const filtered = RECIPES.filter(r => r.title.toLowerCase().includes(filter.toLowerCase()));
-            
-            filtered.forEach(r => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition-all";
-                card.innerHTML = `
-                    <h3 class="font-bold text-lg mb-1">${r.title}</h3>
-                    <span class="text-xs text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded">${r.cuisine}</span>
-                    <div class="mt-4 flex gap-4 text-xs text-stone-500">
-                        <span>⏱ ${r.time}</span>
-                        <span>👨‍🍳 ${r.difficulty}</span>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        search.addEventListener('input', (e) => render(e.target.value));
-        render();
-    </script>
-</body>
-</html>
+  );
+}

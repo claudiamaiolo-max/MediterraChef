@@ -1,243 +1,74 @@
-import React, { useState } from 'react';
-import { 
-  ChefHat, BookOpen, Utensils, Brain, X, Search, Send, Loader2, Key, Info, ChevronRight
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediterraChef - Ricettario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-stone-50 text-stone-800">
 
-const RECIPES = [
-  { 
-    id: 1, title: "Brodo Vegetale a Freddo", category: "Base", cuisine: "Anti-Spreco", time: "48h", difficulty: "Facile", 
-    ingredients: ["Bucce di carote", "Bucce di cipolla", "Apici di sedano", "Erbe aromatiche", "Zenzero", "Semi di finocchio", "Sale", "Pepe"],
-    method: "Riunire le verdure in un vaso di vetro. Aggiungere sale, aglio e spezie. Coprire con acqua fredda e riporre in frigo per 48 ore. Filtrare prima dell'uso."
-  },
-  { 
-    id: 2, title: "Bisquits di Mais", category: "Dolci", cuisine: "Paniere Torino", time: 40, difficulty: "Facile", 
-    ingredients: ["Farina 00", "Farina di Antichi Mais Piemontesi", "Burro di montagna", "Latte", "Lievito"],
-    method: "Amalgamare le farine con burro e latte. Stendere, tagliare a dischi di 6cm e infornare a 230°C per 15 minuti."
-  },
-  { 
-    id: 3, title: "Confettura di scorza e semi di zucca", category: "Conserve", cuisine: "Anti-Spreco", time: 45, difficulty: "Media", 
-    ingredients: ["Scarti di zucca", "Acqua", "Zucchero di canna", "Limone"],
-    method: "Cuocere gli scarti con acqua, zucchero e limone finché morbidi. Frullare e cuocere finché la confettura supera la 'prova piattino'."
-  },
-  { 
-    id: 4, title: "Cipolla Piatlina al Forno", category: "Contorni", cuisine: "Paniere Torino", time: 70, difficulty: "Facile", 
-    ingredients: ["Cipolla Piatlina di Andezeno", "Burro d'alpeggio", "Salvia", "Rosmarino", "Alloro", "Miele di flora alpina"],
-    method: "Avvolgere le cipolle al cartoccio con burro ed erbe. Cuocere a 180°C per un'ora. Servire con un filo di miele."
-  },
-  { 
-    id: 5, title: "Pesto di sedano e prezzemolo", category: "Condimenti", cuisine: "Anti-Spreco", time: 5, difficulty: "Facile", 
-    ingredients: ["Foglie sedano", "Gambi prezzemolo", "Semi di zucca", "Parmigiano Reggiano"],
-    method: "Frullare tutti gli ingredienti a intermittenza aggiungendo acqua se necessario per ammorbidire."
-  },
-  { 
-    id: 6, title: "Frittata di pane raffermo", category: "Piatti Unici", cuisine: "Anti-Spreco", time: 20, difficulty: "Facile", 
-    ingredients: ["Pane vecchio", "Uova", "Latte", "Formaggio grattugiato", "Prezzemolo"],
-    method: "Ammollare il pane nel latte. Strizzare, mescolare con uova, formaggio ed erbe. Cuocere in padella come una frittata classica."
-  },
-  { 
-    id: 7, title: "Gnocchi di patate con Toma di Lanzo", category: "Primi", cuisine: "Paniere Torino", time: 60, difficulty: "Media", 
-    ingredients: ["Patate", "Farina", "Toma di Lanzo DOP", "Burro", "Salvia"],
-    method: "Preparare gli gnocchi impastando patate bollite e farina. Condire con una fonduta leggera di Toma di Lanzo e burro fuso alla salvia."
-  },
-  { 
-    id: 8, title: "Torta di mele con bucce", category: "Dolci", cuisine: "Anti-Spreco", time: 50, difficulty: "Facile", 
-    ingredients: ["Mele (anche ammaccate)", "Bucce di mela", "Farina", "Zucchero", "Uova", "Lievito"],
-    method: "Centrifugare le bucce di mela per ottenere un succo colorato da aggiungere all'impasto. Incorporare le mele a cubetti e cuocere a 180°C."
-  },
-  { 
-    id: 9, title: "Zabaglione al Moscato d'Asti", category: "Dolci", cuisine: "Paniere Torino", time: 15, difficulty: "Media", 
-    ingredients: ["Tuorli d'uovo", "Zucchero", "Moscato d'Asti DOCG"],
-    method: "Montare a bagnomaria i tuorli con lo zucchero, aggiungendo il Moscato a filo. Servire caldo con i bisquits di mais."
-  },
-  { 
-    id: 10, title: "Tomini elettrici", category: "Antipasti", cuisine: "Paniere Torino", time: 24, difficulty: "Facile", 
-    ingredients: ["Tomini freschi", "Olio EVO", "Peperoncino", "Aglio", "Prezzemolo"],
-    method: "Marinare i tomini in una miscela di olio, aglio, peperoncino e prezzemolo per almeno 24 ore prima di servire."
-  }
-];
+    <div id="app"></div>
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('recipes');
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const [apiKey, setApiKey] = useState('');
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [aiResponse, setAiResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
+    <script type="text/babel">
+        const { useState } = React;
 
-  const filteredRecipes = RECIPES.filter(r => 
-    r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    r.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+        // Archivio esteso con ricette dai PDF
+        const RECIPES = [
+            { id: 1, title: "Brodo Vegetale a Freddo", cuisine: "Anti-Spreco", time: "48h", difficulty: "Facile", ingredients: ["Bucce di carote", "Bucce di cipolla", "Sedano"], method: "Mettere tutto in acqua fredda per 48h." },
+            { id: 2, title: "Bisquits di Mais", cuisine: "Paniere Torino", time: "40min", difficulty: "Facile", ingredients: ["Farina Mais", "Burro", "Latte"], method: "Impastare e cuocere a 230°C." },
+            { id: 3, title: "Cipolla Piatlina al Forno", cuisine: "Paniere Torino", time: "70min", difficulty: "Facile", ingredients: ["Cipolla", "Burro", "Salvia"], method: "Al cartoccio a 180°C." },
+            { id: 4, title: "Pesto Sedano e Prezzemolo", cuisine: "Anti-Spreco", time: "5min", difficulty: "Facile", ingredients: ["Sedano", "Prezzemolo", "Semi"], method: "Frullare gli ingredienti." },
+            { id: 5, title: "Pomodorini, caramello e sesamo", cuisine: "Pomodoro", time: "20min", difficulty: "Media", ingredients: ["Pomodorini", "Zucchero", "Sesamo"], method: "Caramellare i pomodorini." }
+        ];
 
-  const handleAiCall = async () => {
-    if (!apiKey) return;
-    setIsLoading(true);
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `Agisci come un esperto chef della tradizione mediterranea. Rispondi a questa richiesta: ${aiPrompt}` }] }]
-        })
-      });
-      const data = await response.json();
-      setAiResponse(data.candidates?.[0]?.content?.parts?.[0]?.text || "Errore nella generazione.");
-    } catch (error) {
-      setAiResponse("Errore di connessione.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const Navigation = () => (
-    <nav className="fixed bottom-0 w-full md:w-64 md:h-screen md:top-0 md:left-0 bg-white border-t md:border-r border-stone-200 z-50 flex md:flex-col justify-around md:justify-start p-4 space-x-2 md:space-x-0 md:space-y-4">
-      <div className="hidden md:flex items-center gap-2 mb-8 p-2">
-        <ChefHat className="text-emerald-800" size={32} />
-        <span className="font-serif text-xl font-bold text-emerald-900">MediterraChef</span>
-      </div>
-      {[
-        { id: 'recipes', icon: BookOpen, label: 'Ricettario' },
-        { id: 'ai', icon: Brain, label: 'AI Chef' },
-      ].map((item) => (
-        <button 
-          key={item.id}
-          onClick={() => setActiveTab(item.id)}
-          className={`flex flex-col md:flex-row items-center gap-2 p-3 rounded-xl transition-all ${activeTab === item.id ? 'bg-emerald-50 text-emerald-800' : 'text-stone-500 hover:bg-stone-100'}`}
-        >
-          <item.icon size={24} />
-          <span className="text-xs md:text-sm font-medium">{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-
-  return (
-    <div className="bg-stone-50 min-h-screen font-sans text-stone-800">
-      <Navigation />
-      
-      {selectedRecipe && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-          <div className="bg-white max-w-lg w-full rounded-3xl p-8 relative shadow-2xl animate-in fade-in zoom-in duration-200">
-            <button onClick={() => setSelectedRecipe(null)} className="absolute top-4 right-4 text-stone-400 hover:text-stone-600">
-              <X size={24} />
-            </button>
-            <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">{selectedRecipe.title}</h2>
-            <div className="flex gap-2 mb-4">
-              <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg">{selectedRecipe.cuisine}</span>
-              <span className="px-2 py-1 bg-stone-100 text-stone-600 text-xs font-medium rounded-lg">{selectedRecipe.difficulty}</span>
+        // Componente Card Ricetta
+        const RecipeCard = ({ recipe, onClick }) => (
+            <div onClick={() => onClick(recipe)} className="bg-white p-4 rounded-lg shadow border cursor-pointer hover:shadow-md transition">
+                <h2 className="font-bold text-lg">{recipe.title}</h2>
+                <p className="text-xs text-emerald-700 font-semibold uppercase">{recipe.cuisine}</p>
             </div>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-stone-800">Ingredienti</h3>
-                <p className="text-sm text-stone-600">{selectedRecipe.ingredients.join(", ")}</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-stone-800">Procedimento</h3>
-                <p className="text-sm text-stone-600 leading-relaxed">{selectedRecipe.method}</p>
-              </div>
+        );
+
+        // Componente Dettaglio
+        const RecipeDetail = ({ recipe, onBack }) => (
+            <div className="bg-white p-6 rounded-lg shadow animate-in fade-in">
+                <button onClick={onBack} className="text-emerald-700 mb-4 font-bold">← Torna all'elenco</button>
+                <h2 className="text-2xl font-bold mb-2">{recipe.title}</h2>
+                <p className="text-sm font-semibold mb-4 text-emerald-800 uppercase">{recipe.cuisine}</p>
+                <h3 className="font-bold mt-4">Ingredienti:</h3>
+                <ul className="list-disc ml-5 mb-4">{recipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}</ul>
+                <h3 className="font-bold">Procedimento:</h3>
+                <p className="text-stone-700 leading-relaxed">{recipe.method}</p>
             </div>
-          </div>
-        </div>
-      )}
+        );
 
-      <main className="pb-24 md:pb-8 md:pl-64 p-4 md:p-8">
-        {activeTab === 'recipes' ? (
-          <>
-            <header className="mb-8">
-              <h1 className="text-3xl font-serif font-bold text-stone-900">Archivio Completo</h1>
-              <div className="relative mt-4 max-w-md">
-                <Search className="absolute left-3 top-3 text-stone-400" size={20} />
-                <input 
-                  type="text" 
-                  placeholder="Cerca ricetta o categoria..." 
-                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </header>
+        function App() {
+            const [view, setView] = useState('list');
+            const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm hover:shadow-lg transition-all cursor-pointer group" onClick={() => setSelectedRecipe(recipe)}>
-                  <h3 className="font-bold text-lg mb-1 group-hover:text-emerald-800 transition-colors">{recipe.title}</h3>
-                  <p className="text-xs text-emerald-800 font-bold mb-4 bg-emerald-50 px-2 py-1 inline-block rounded">{recipe.cuisine}</p>
-                  <div className="flex items-center gap-4 text-xs text-stone-500">
-                    <span>⏱ {recipe.time}</span>
-                    <span>👨‍🍳 {recipe.difficulty}</span>
-                  </div>
+            return (
+                <div className="max-w-xl mx-auto p-4 min-h-screen">
+                    <header className="mb-8">
+                        <h1 className="text-3xl font-bold text-center text-emerald-900">MediterraChef</h1>
+                    </header>
+                    
+                    {view === 'list' ? (
+                        <div className="space-y-4">
+                            {RECIPES.map(r => <RecipeCard key={r.id} recipe={r} onClick={(r) => { setSelectedRecipe(r); setView('detail'); }} />)}
+                        </div>
+                    ) : (
+                        <RecipeDetail recipe={selectedRecipe} onBack={() => setView('list')} />
+                    )}
                 </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <h1 className="text-3xl font-serif font-bold text-stone-900">AI Chef Assistant</h1>
-            
-            <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-stone-700">API Key</label>
-                <button 
-                  onClick={() => setShowGuide(!showGuide)}
-                  className="flex items-center gap-1 text-emerald-800 text-xs font-bold hover:underline"
-                >
-                  <Info size={14} /> Come ottenerla?
-                </button>
-              </div>
+            );
+        }
 
-              {showGuide && (
-                <div className="bg-emerald-50 p-4 rounded-xl text-emerald-900 text-xs leading-relaxed border border-emerald-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <p className="font-bold mb-2">Guida Rapida:</p>
-                  <ol className="list-decimal list-inside space-y-1">
-                    <li>Vai su <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google AI Studio</a>.</li>
-                    <li>Accedi con il tuo account Google.</li>
-                    <li>Clicca su "Get API key" nella barra laterale.</li>
-                    <li>Crea una nuova chiave e copiala.</li>
-                    <li>Incollala qui sotto per iniziare a cucinare con l'AI!</li>
-                  </ol>
-                </div>
-              )}
-
-              <div className="flex items-center gap-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
-                <Key className="text-stone-400" size={20} />
-                <input 
-                  type="password" 
-                  placeholder="Incolla qui la tua API Key..." 
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-sm"
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  value={aiPrompt}
-                  onChange={(e) => setAiPrompt(e.target.value)}
-                  placeholder="Chiedi un suggerimento culinario..." 
-                  className="flex-1 px-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 outline-none"
-                />
-                <button 
-                  onClick={handleAiCall}
-                  disabled={isLoading || !apiKey || !aiPrompt}
-                  className="bg-emerald-800 text-white p-3 rounded-xl hover:bg-emerald-900 disabled:bg-stone-300 transition-colors"
-                >
-                  {isLoading ? <Loader2 className="animate-spin" size={24} /> : <Send size={24} />}
-                </button>
-              </div>
-
-              {aiResponse && (
-                <div className="mt-6 p-4 bg-emerald-50 rounded-xl text-emerald-900 text-sm leading-relaxed border border-emerald-100">
-                  <p className="font-semibold mb-2">Risposta dello Chef:</p>
-                  {aiResponse}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('app'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
